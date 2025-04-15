@@ -1,9 +1,5 @@
 import XCTest
 
-#if canImport(Testing)
-  import Testing
-#endif
-
 /// Enhances failure messages with a command line diff tool expression that can be copied and pasted
 /// into a terminal.
 @available(
@@ -22,15 +18,6 @@ public var diffTool: SnapshotTestingConfiguration.DiffTool {
 @_spi(Internals)
 public var _diffTool: SnapshotTestingConfiguration.DiffTool {
   get {
-    #if canImport(Testing)
-      if let test = Test.current {
-        for trait in test.traits.reversed() {
-          if let diffTool = (trait as? _SnapshotsTestTrait)?.configuration.diffTool {
-            return diffTool
-          }
-        }
-      }
-    #endif
     return __diffTool
   }
   set {
@@ -55,15 +42,6 @@ public var isRecording: Bool {
 @_spi(Internals)
 public var _record: SnapshotTestingConfiguration.Record {
   get {
-    #if canImport(Testing)
-      if let test = Test.current {
-        for trait in test.traits.reversed() {
-          if let record = (trait as? _SnapshotsTestTrait)?.configuration.record {
-            return record
-          }
-        }
-      }
-    #endif
     return __record
   }
   set {
@@ -285,13 +263,7 @@ public func verifySnapshot<Value, Format>(
   line: UInt = #line,
   column: UInt = #column
 ) -> String? {
-  #if canImport(Testing)
-    if Test.current == nil {
-      CleanCounterBetweenTestCases.registerIfNeeded()
-    }
-  #else
-    CleanCounterBetweenTestCases.registerIfNeeded()
-  #endif
+  CleanCounterBetweenTestCases.registerIfNeeded()
 
   let record =
     (recording == true ? .all : recording == false ? .missing : nil)
@@ -502,15 +474,7 @@ public func verifySnapshot<Value, Format>(
 // MARK: - Private
 
 private var counter: File.Counter {
-  #if canImport(Testing)
-    if Test.current != nil {
-      return File.counter
-    } else {
-      return _counter
-    }
-  #else
-    return _counter
-  #endif
+  return _counter
 }
 
 private let _counter = File.Counter()
