@@ -350,20 +350,6 @@ public func verifySnapshot<Value, Format>(
 
         #if !os(Android) && !os(Linux) && !os(Windows)
           if ProcessInfo.processInfo.environment.keys.contains("__XCODE_BUILT_PRODUCTS_DIR_PATHS") {
-            if isSwiftTesting {
-              #if compiler(>=6.2) && canImport(Testing)
-                recordSwiftTestingAttachment(
-                  writeToDisk ? try Data(contentsOf: snapshotFileUrl) : snapshotData,
-                  named: snapshotFileUrl.lastPathComponent,
-                  sourceLocation: SourceLocation(
-                    fileID: fileID.description,
-                    filePath: filePath.description,
-                    line: Int(line),
-                    column: Int(column)
-                  )
-                )
-              #endif
-            } else {
               XCTContext.runActivity(named: "Attached Recorded Snapshot") { activity in
                 if writeToDisk {
                   // Snapshot was written to disk. Create attachment from file
@@ -384,7 +370,6 @@ public func verifySnapshot<Value, Format>(
                   activity.add(attachment)
                 }
               }
-            }
           }
         #endif
       }
@@ -453,27 +438,6 @@ public func verifySnapshot<Value, Format>(
       if !attachments.isEmpty {
         #if !os(Linux) && !os(Android) && !os(Windows)
           if ProcessInfo.processInfo.environment.keys.contains("__XCODE_BUILT_PRODUCTS_DIR_PATHS") {
-            if isSwiftTesting {
-              #if compiler(>=6.2) && canImport(Testing)
-                attachments.forEach {
-                  switch $0 {
-                  case .xcTest:
-                    break
-                  case .data(let data, let name):
-                    recordSwiftTestingAttachment(
-                      data,
-                      named: name,
-                      sourceLocation: SourceLocation(
-                        fileID: fileID.description,
-                        filePath: filePath.description,
-                        line: Int(line),
-                        column: Int(column)
-                      )
-                    )
-                  }
-                }
-              #endif
-            } else {
               XCTContext.runActivity(named: "Attached Failure Diff") { activity in
                 attachments.forEach {
                   switch $0 {
@@ -488,7 +452,6 @@ public func verifySnapshot<Value, Format>(
                 }
               }
             }
-          }
         #endif
       }
 
